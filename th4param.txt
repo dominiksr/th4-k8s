@@ -1,0 +1,21 @@
+Available options:
+    --config-file <file>                        | configuration file path
+    --no-config                                 | do not try to configure TheHive (add secret and elasticsearch)
+    --no-config-secret                          | do not add random secret to configuration
+    --secret <secret>                           | secret to secure sessions
+    --show-secret                               | show the generated secret
+    --no-config-db                              | do not configure database automatically
+    --cql-hostnames <host>,<host>,...           | resolve these hostnames to find cassandra instances
+    --cql-username <username>                   | username of cassandra database
+    --cql-password <password>                   | password of cassandra database
+    --bdb-directory <path>                      | location of local database, if cassandra is not used (default: /data/db)
+    --no-config-storage                         | do not configure storage automatically
+    --hdfs-url <url>                            | url of hdfs name node
+    --storage-directory <path>                  | location of local storage, if hdfs is not used (default: /data/files)
+    --no-config-cortex                          | do not add Cortex configuration
+    --cortex-proto <proto>                      | define protocol to connect to Cortex (default: http)
+    --cortex-port <port>                        | define port to connect to Cortex (default: 9001)
+    --cortex-hostnames <host>,<host>,...        | resolve this hostname to find Cortex instances
+    --cortex-keys <key>,<key>,...               | define Cortex key
+    migrate <param> <param> ...                 | run migration tool
+    cloner <param> <param> ...                  | run cloner tool
