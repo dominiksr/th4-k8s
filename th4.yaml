@@ -90,6 +90,44 @@ data:
     </configuration>
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-pvc
+  namespace: thehive
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+  # volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: cassandra-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cassandra-pv
+spec:
+  capacity:
+    storage: 4Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /mnt/disks/ssd1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - devcp0
+---
+apiVersion: v1
 kind: Service
 metadata:
   labels:
@@ -174,7 +212,8 @@ spec:
               mountPath: /var/lib/cassandra
       volumes:
         - name: cassandra-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: cassandra-pvc
 
 ---
 apiVersion: v1
