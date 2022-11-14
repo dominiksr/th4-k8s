@@ -168,7 +168,6 @@ spec:
         - name: cassandra-data
           persistentVolumeClaim:
             claimName: cassandra-pvc
-
 ---
 apiVersion: v1
 kind: Service
@@ -326,8 +325,6 @@ spec:
             - "--cql-hostnames"
             - "cassandra"
             - "--no-config-cortex"
-            # - "--config-file"
-            # - "/home/ubuntu/th4image.conf"
           ports:
             - containerPort: 9000
               name: http
