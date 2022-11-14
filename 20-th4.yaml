@@ -1,0 +1,99 @@
+#
+# Create a role, `pod-reader`, that can list pods and
+# bind the default service account in the namespace
+# that the binding is deployed to to that role.
+#
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-reader
+  namespace: thehive
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: thehive
+  namespace: thehive
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: thehive
+subjects:
+  - kind: ServiceAccount
+    name: thehive
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: thehive
+  name: thehive
+  namespace: thehive
+spec:
+  type: NodePort
+  ports:
+    - port: 9000
+      nodePort: 30001
+  selector:
+    app: thehive
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thehive
+  namespace: thehive
+  labels:
+    app: thehive
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thehive
+  template:
+    metadata:
+      labels:
+        app: thehive
+    spec:
+      serviceAccountName: thehive
+      volumes:
+        - name: thehive-config
+          configMap:
+            name: thehive-config
+      containers:
+        - name: thehive
+          image: thehiveproject/thehive4:4.1.24
+          command:
+            - "/opt/thehive/entrypoint"
+            - "--secret"
+            - "SuperSecretForKubernetes"
+            - "--cql-hostnames"
+            - "cassandra"
+            - "--no-config-cortex"
+          ports:
+            - containerPort: 9000
+              name: http
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: "500m"
+              memory: 512Mi
+          volumeMounts:
+            - name: thehive-config
+              mountPath: /etc/thehive
+              readOnly: true
